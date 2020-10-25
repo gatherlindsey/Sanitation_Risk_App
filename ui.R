@@ -32,11 +32,10 @@ ui <- tagList(
                                     width = 400, height = 600,
                                     style = "overflow-y: scroll;",
                                     #Stats on the side
-                                    h1("Risk"),
                                     br(),
-                                    p(id = "mainText", "It considers household density to be of equal importance to all the other indicators combined. This is to account for the additional risk that high household density poses in areas where sanitation facilities are poor (Hathi, et al. 2017)."),
-                                    p(id = "mainText", "This index predicts a high level of uncontained faecal waste in the southwest, with another hotspot in the northwest of the study area. The northeast and east are generally predicted to have a low level of risk. This index generates values with few areas that have a significantly higher or lower risk than the others. "),
-                                    p(id= "mainText", "SRI1=(Flood risk+Road density+Terrain movement+Households sharing toilet+Main drinking water source+Toilet type+ Toilet location+Population density+Children aged under 5 per household+Rent+Tax+Open defecation)*Household density"))
+                                    p(id = "mainText", style="text-align: left;", "SRI1 considers household density to be of equal importance to all the other 12 indicators. This is to account for the additional risk that high household density poses in areas where sanitation facilities are poor (Hathi, et al. 2017)."),
+                                    p(id = "mainText", style="text-align: left;", "This index predicts a high level of uncontained faecal waste in the southwest, with another hotspot in the northwest of the study area. The northeast and east are generally predicted to have a low level of risk. This index generates values with few areas that have a significantly higher or lower risk than the others. "),
+                                    p(id= "mainText", style="text-align: left;", "SRI1 = (Flood risk + Road density + Terrain movement + Households sharing toilet + Main drinking water source + Toilet type + Toilet location + Population density + Children aged under 5 per household + Rent + Tax + Open defecation) * Household density"))
                                     ),
              tabPanel("SRI2", value = 1,
                       leafletOutput(outputId = "SRI2", height = 700) %>% withSpinner(type = 4),
@@ -45,11 +44,10 @@ ui <- tagList(
                                     width = 400, height = 600,
                                     style = "overflow-y: scroll;",
                                     #Stats on the side
-                                    h1("Risk"),
                                     br(),
-                                    p(id = "mainText", "We see a much greater spread in areas that are predicted to have lower rates of uncontained faecal matter in the environment. Areas of high risk are largely located in the northeast and west of the study area, whereas the southeast is predicted to be at lower risk."), 
-                                    p(id = "mainText", "Similar to SRI1, this index is limited by the assumption that all of the indicators are of equal importance to one another, limiting its accuracy. To improve this, we need to be able to weight each indicator according to its importance. "),
-                                    p(id = "mainText", "SRI2= Average(Flood risk+Road density+Terrain movemen+Open defecation+ Households sharing toilet+Main drinking water source+Toilet type+Population density+Household density+Toilet location+ Children aged under 5 per household+Rent+Tax)"))
+                                    p(id = "mainText", style="text-align: left;","With SRI2, we see a much greater spread in areas that are predicted to have lower rates of uncontained faecal matter in the environment. Areas of high risk are largely located in the northeast and west of the study area, whereas the southeast is predicted to be at lower risk."), 
+                                    p(id = "mainText", style="text-align: left;","Similar to SRI1, this index is limited by the assumption that all of the indicators are of equal importance to one another, limiting its accuracy. To improve this, we need to be able to weight each indicator according to its importance. "),
+                                    p(id = "mainText", style="text-align: left;","SRI2 = Average (Flood risk + Road density + Terrain movement + Open defecation + Households sharing toilet + Main drinking water source + Toilet type + Population density + Household density + Toilet location + Children aged under 5 per household + Rent + Tax)"))
 
              ), tabPanel("SRI3", value = 2,
                          leafletOutput(outputId = "SRI3", height = 700) %>% withSpinner(type = 4),
@@ -57,12 +55,10 @@ ui <- tagList(
                                        draggable = F, top =140, left = "auto", right = 50, bottom = "auto",
                                        width = 400, height = 600, 
                                        style = "overflow-y: scroll;",
-                                       #Stats on the side
-                                       h1("Risk"),
                                        br(),
-                                       p(id = "mainText", "For SRI3, we utilised the AHP method to develop weights for each indicator according to how important it was in predicting the level of uncontained faecal waste in the environment. It is clear from the weightings that the experts we consulted viewed environmental indicators - flood risk and terrain movement - as the key indicators that predict the level of uncontained faecal waste in the environment."),
-                                       p(id = "mainText", "This index shows hotspots in the northeast and northwest, and areas of low risk in the east. It correlates closely to flood risk dataset, as this was the indicator that was most influential by the experts and therefore has the highest weighting. This index gives the most even spread of values across all risk values. "),
-                                       p(id = "mainText", "SRI3 = (Flood risk*0.17 + Terrain Movement*0.17 + Road density*0.12 + Household density*0.10 + Population density*0.10 + Rent*0.08 + Tax*0.07 + Main drinking water source*0.04 + Children aged under 5 per household*0.04 + Open Defecation*0.04 + Households sharing toilet*0.03 + Toilet type*0.02 + Toilet location*0.02)"))
+                                       p(id = "mainText", style="text-align: left;", "For SRI3, we utilised the AHP method to develop weights for each indicator according to how important it was in predicting the level of uncontained faecal waste in the environment. It is clear from the weightings that the experts we consulted viewed environmental indicators - flood risk and terrain movement - as the key indicators that predict the level of uncontained faecal waste in the environment."),
+                                       p(id = "mainText", style="text-align: left;", "This index shows hotspots in the northeast and northwest, and areas of low risk in the east. It correlates closely to flood risk dataset, as this was the indicator that was most influential by the experts and therefore has the highest weighting. This index gives the most even spread of values across all risk values. "),
+                                       p(id = "mainText", style="text-align: left;", "SRI3 = (Flood risk*0.17 + Terrain Movement*0.17 + Road density*0.12 + Household density*0.10 + Population density*0.10 + Rent*0.08 + Tax*0.07 + Main drinking water source*0.04 + Children aged under 5 per household*0.04 + Open Defecation*0.04 + Households sharing toilet*0.03 + Toilet type*0.02 + Toilet location*0.02)"))
                             
                          ),
              #this is in the www folder                        
@@ -85,4 +81,5 @@ ui <- tagList(
 #it will upload here >> https://sanitationrisk.shinyapps.io/shiny
 #library(rsconnect)
 #rsconnect::setAccountInfo(name='sanitation-hub', token='82EA28FA57A3CF8359DEAC9326DA0DDE', secret='UXNQCdSIUZB6Wfv7HhhiWf4Nqf+MEJ894mPJWC2s')
-
+#rsconnect::deployApp("", account = 'sanitation-hub')
+#getwd()

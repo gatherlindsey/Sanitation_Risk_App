@@ -17,14 +17,18 @@ library(sf)
 source('server_modules.R')
 source('functions.R')
 
-
 #open the cua5 outline shapefile
 CUA5 <- readOGR("Shapefiles/CUA5.shp",GDAL1_integer64_policy = TRUE, layer = 'CUA5')
 CUA5 <- spTransform(CUA5, CRS("+proj=longlat +datum=WGS84 +no_defs"))
 
 #open the fokontanies dataset
-fok <- readOGR("Shapefiles/fokontanies_max.shp", GDAL1_integer64_policy = TRUE, layer = 'fokontanies_max')
+fok <- readOGR("Shapefiles/fokontanies_edited.shp", GDAL1_integer64_policy = TRUE, layer = 'fokontanies_edited')
 fok <- spTransform(fok, CRS("+proj=longlat +datum=WGS84 +no_defs"))
+#Changing certain values if they are incorrect
+# fok@data$Nom[fok@data$Nom == 'RiziÃƒÂ¨res'] <- 'Riziares'
+# fok@data$Nom[fok@data$Nom == 'Analamahitsy CitÃƒÂ©'] <- 'Analamahitsy Cite'
+# writeOGR(obj = fok, layer = "fokontanies_edited", "C:/Users/someg/OneDrive/Desktop/Shiny/Shapefiles", driver="ESRI Shapefile")
+
 
 # CUA5 Risk
 CUA5_Risk <- readOGR("Shapefiles/Final_SRI_1.shp",GDAL1_integer64_policy = TRUE, layer = "Final_SRI_1")
@@ -48,8 +52,13 @@ fok@data$rank_sri2[order(-fok@data$SRI2_max)] <- 1:nrow(fok@data)
 
 fok@data$rank_sri3 <- NA
 fok@data$rank_sri3[order(-fok@data$SRI3_max)] <- 1:nrow(fok@data)
+
 #use this to check what data is available
 #CUA5_Risk@data$
+
+
+
+
 
 # Server ----
 server <- function(input, output, session) {
@@ -68,19 +77,26 @@ server <- function(input, output, session) {
   pallete <- c("#008837", "#a6dba0", "#f7f7f7", "#c2a5cf", "#7b3294")
   
   
-  bins_sri1 <- c(0, 0.419, 0.525, 0.621, 0.744, 1)
-  pal_sri1 <- colorBin(pallete, domain = fok@data$SRI1_max, bins = bins_sri1)
+  bins_sri1_grid <- c(0, 0.1120, 0.2370, 0.3750, 0.5610, 1)
+  bins_sri1_fok <- c(0, 0.419, 0.525, 0.621, 0.744, 1)
+  pal_sri1_grid <- colorBin(pallete, domain = fok@data$SRI1_max, bins = bins_sri1_grid)
+  pal_sri1_fok <- colorBin(pallete, domain = fok@data$SRI1_max, bins = bins_sri1_fok)
   
-  bins_sri2 <- c(0, 0.7, 0.797, 0.836, 0.928, 1)
-  pal_sri2 <- colorBin(pallete, domain = fok@data$SRI2_max, bins = bins_sri2)
+  bins_sri2_grid <- c(0, 0.072, 0.5262, 0.63, 0.739, 1)
+  bins_sri2_fok <- c(0, 0.7, 0.797, 0.836, 0.928, 1)
+  pal_sri2_grid <- colorBin(pallete, domain = fok@data$SRI2_max, bins = bins_sri2_grid)
+  pal_sri2_fok <- colorBin(pallete, domain = fok@data$SRI2_max, bins = bins_sri2_fok)
   
-  bins_sri3 <- c(0, 0.682, 0.75, 0.79, 0.909, 1)
-  pal_sri3 <- colorBin(pallete, domain = fok@data$SRI3_max, bins = bins_sri3)
-  
+  bins_sri3_grid <- c(0, 0.2750, 0.4190, 0.5430, 0.6890, 1)
+  bins_sri3_fok <- c(0, 0.682, 0.75, 0.79, 0.909, 1)
+  pal_sri3_grid <- colorBin(pallete, domain = fok@data$SRI3_max, bins = bins_sri3_grid)
+  pal_sri3_fok <- colorBin(pallete, domain = fok@data$SRI3_max, bins = bins_sri3_fok)
   
   #Labels for the symbology
   sym_labels<- c("Lowest"," ","Medium"," ", "Highest")
   
+  
+  #instructions for the pop ups on the map
   popup_sri1 <- paste(
     "<strong>Summary:</strong>",
     "<br><strong>Name: </strong>"
@@ -121,7 +137,7 @@ server <- function(input, output, session) {
       addPolylines(data = roads, color = "Black", weight = 1, smoothFactor = 0.5,
                    opacity = 1, fillOpacity = 0.3,
                    group = "Roads") %>%
-      addPolygons(data = fok, fillColor = ~pal_sri1(SRI1_max), weight = 1, smoothFactor = 0.5, #color = "#444444",
+      addPolygons(data = fok, fillColor = ~pal_sri1_fok(SRI1_max), weight = 1, smoothFactor = 0.5, #color = "#444444",
                   opacity = 0.2, fillOpacity = 0.7, popup = ~popup_sri1,
                   #label = HTML_labels(fok$SRI1_max, text = ""),
                   highlightOptions = highlightOptions(
@@ -130,7 +146,7 @@ server <- function(input, output, session) {
                     opacity = 0.7,
                     bringToFront = TRUE),
                   group = "Fokontany (Max Risk)") %>%
-      addPolygons(data = CUA5_Risk, fillColor = ~pal_sri1(SRI1_), color = "#444444", weight = 1, smoothFactor = 0.5,
+      addPolygons(data = CUA5_Risk, fillColor = ~pal_sri1_grid(SRI1_), color = "#444444", weight = 1, smoothFactor = 0.5,
                   opacity = 0.1, fillOpacity = 0.6,
                   label = HTML_labels(CUA5_Risk$SRI1_, text = ""),
                   highlightOptions = highlightOptions(
@@ -142,7 +158,7 @@ server <- function(input, output, session) {
       addLegend(title = "Risk", 
                 position = "bottomleft", 
                 values = CUA5_Risk$SRI1_,
-                pal = pal_sri1,
+                pal = pal_sri1_fok,
                 bins = 5,
                 labFormat = function(type, cuts, p){  # Here's the trick
                   paste0(sym_labels)}
@@ -169,7 +185,7 @@ server <- function(input, output, session) {
       addPolylines(data = roads, color = "Black", weight = 1, smoothFactor = 0.5,
                    opacity = 1, fillOpacity = 0.3,
                    group = "Roads") %>%
-      addPolygons(data = fok, fillColor = ~pal_sri2(SRI2_max), weight = 1, smoothFactor = 0.5, #color = "#444444",
+      addPolygons(data = fok, fillColor = ~pal_sri2_fok(SRI2_max), weight = 1, smoothFactor = 0.5, #color = "#444444",
                   opacity = 0.2, fillOpacity = 0.7, popup = ~popup_sri2,
                   #label = HTML_labels(fok$SRI2_max, text = ""),
                   highlightOptions = highlightOptions(
@@ -178,7 +194,7 @@ server <- function(input, output, session) {
                     opacity = 0.7,
                     bringToFront = TRUE),
                   group = "Fokontany (Max Risk)") %>%
-      addPolygons(data = CUA5_Risk, fillColor = ~pal_sri2(SRI2_), color = "#444444", weight = 1, smoothFactor = 0.5,
+      addPolygons(data = CUA5_Risk, fillColor = ~pal_sri2_grid(SRI2_), color = "#444444", weight = 1, smoothFactor = 0.5,
                   opacity = 0.1, fillOpacity = 0.6,
                   label = HTML_labels(CUA5_Risk$SRI2_, text = ""),
                   highlightOptions = highlightOptions(
@@ -190,7 +206,7 @@ server <- function(input, output, session) {
       addLegend(title = "Risk", 
                 position = "bottomleft", 
                 values = CUA5_Risk@data$SRI2_,
-                pal = pal_sri2,
+                pal = pal_sri2_fok,
                 bins = 5,
                 labFormat = function(type, cuts, p){  # Here's the trick
                   paste0(sym_labels)}
@@ -216,7 +232,7 @@ server <- function(input, output, session) {
       addPolylines(data = roads, color = "Black", weight = 1, smoothFactor = 0.5,
                    opacity = 1, fillOpacity = 0.3,
                    group = "Roads") %>%
-      addPolygons(data = fok, fillColor = ~pal_sri3(SRI3_max), weight = 1, smoothFactor = 0.5, #color = "#444444",
+      addPolygons(data = fok, fillColor = ~pal_sri3_fok(SRI3_max), weight = 1, smoothFactor = 0.5, #color = "#444444",
                   opacity = 0.2, fillOpacity = 0.7, popup = ~popup_sri3,
                   #label = HTML_labels(fok$SRI2_max, text = ""),
                   highlightOptions = highlightOptions(
@@ -225,7 +241,7 @@ server <- function(input, output, session) {
                     opacity = 0.7,
                     bringToFront = TRUE),
                   group = "Fokontany (Max Risk)") %>%
-      addPolygons(data = CUA5_Risk, fillColor = ~pal_sri3(SRI3_), color = "#444444", weight = 1, smoothFactor = 0.5,
+      addPolygons(data = CUA5_Risk, fillColor = ~pal_sri3_grid(SRI3_), color = "#444444", weight = 1, smoothFactor = 0.5,
                   opacity = 0.1, fillOpacity = 0.6,
                   label = HTML_labels(CUA5_Risk$SRI3_, text = ""),
                   highlightOptions = highlightOptions(
@@ -237,7 +253,7 @@ server <- function(input, output, session) {
       addLegend(title = "Risk", 
                 position = "bottomleft", 
                 values = CUA5_Risk@data$SRI3_,
-                pal = pal_sri3,
+                pal = pal_sri3_fok,
                 bins = 5,
                 labFormat = function(type, cuts, p){  # Here's the trick
                   paste0(sym_labels)}
